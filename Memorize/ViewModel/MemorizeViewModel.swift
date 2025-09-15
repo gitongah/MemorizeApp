@@ -10,10 +10,10 @@ import SwiftUI
 
 
 class MemorizeViewModel: ObservableObject {
-    private static let emojis = ["👻","🕷️","🎃","💀","👹","🧟‍♂️"]
+    private static let emojis = ["👻","🕷️","🎃","💀","👹","🧟‍♂️","😈","🧟‍♀️","🧙🏽","🕸️"]
     
     private static func createMmemoryGame() -> CardGameModel<String>{
-        return CardGameModel(numberOfPairsOfCards: 4){ index in
+        return CardGameModel(numberOfPairsOfCards: emojis.count ){ index in
             if emojis.indices.contains(index) {
                 return MemorizeViewModel.emojis[index]
             }else {

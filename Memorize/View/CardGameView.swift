@@ -9,30 +9,35 @@ import SwiftUI
 
 struct CardGameView: View {
     @ObservedObject var viewModel: MemorizeViewModel
-    
-    let columns =  [GridItem(.adaptive(minimum: 85),spacing: 0)]
+    let aspectRatio: CGFloat = 2/3
+
     var body: some View {
         VStack {
             Text("Memorize!")
                 .font(.largeTitle)
             Spacer()
             card
+                .animation(.default, value: viewModel.cards)
             
             Spacer()
-            
             themeBar
+
             
         }
         .padding()
         
     }
     var card: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 0){
-                ForEach(viewModel.cards.indices, id: \.self) { index in
-                    CardGame(viewModel.cards[index])
-                        .aspectRatio(2/3, contentMode: .fit)
+        GeometryReader { geometry in
+            let gridItemSize = gridItemWidthThatFits(count: viewModel.cards.count, size: geometry.size, aspectRatio: aspectRatio)
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: gridItemSize),spacing: 0)], spacing: 0){
+                ForEach(viewModel.cards) { card in
+                    CardGame(card)
+                        .aspectRatio(aspectRatio, contentMode: .fit)
                         .padding(4)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                        }
                     
                 }
             }
@@ -42,49 +47,34 @@ struct CardGameView: View {
         
     }
     private var themeBar: some View {
-
-
-        return HStack {
-            VStack {
-                Button("Shuffle"){
-                    viewModel.shuffle()
-                }
+        HStack {
+            Button("Shuffle"){
+                viewModel.shuffle()
             }
-            Button(action: {
-                
-            } , label: {
-                HStack {
-                    Image(systemName: "theatermasks.fill")
-                    Text("Halloween")
-                }
-                
-                
-            })
-            
-            Button(action: {
-                
-            } , label: {
-                HStack {
-                    Image(systemName: "pawprint.fill")
-                    Text("animals")
-                }
-                
-                
-            })
-            
-            Button(action: {
-                
-                
-            }, label: {
-                HStack {
-                    Image(systemName: "fork.knife.circle.fill")
-                    Text("Food")
-                }
-            })
-            
-            
         }
-        .buttonStyle(.borderedProminent)
+
+    }
+    func gridItemWidthThatFits(
+        count: Int,
+        size: CGSize,
+        aspectRatio: CGFloat)
+    -> CGFloat {
+        let count = CGFloat(count)
+        var columnCount = 1.0
+        
+        repeat {
+            let width = size.width / columnCount
+            let height = width / aspectRatio
+            
+            let rowCount = (count / columnCount).rounded(.up)
+            
+            if height * rowCount <= size.height {
+                return (size.width / columnCount).rounded(.down)
+            }
+            columnCount += 1
+            
+        }while columnCount < count
+        return min(size.width / count, size.height * aspectRatio).rounded(.down)
     }
     
     

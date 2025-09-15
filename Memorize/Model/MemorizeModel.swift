@@ -7,37 +7,7 @@
 
 import Foundation
 
-enum GameTheme{
-    case spooky
-    case animals
-    case food
-    
-    var uniques: [String]{
-        switch self {
-        case .spooky:
-            return Theme.spooky
-        case .animals:
-            return Theme.animals
-        case .food:
-            return Theme.food
-        }
-    }
-}
-struct Theme{
-    
-    //Spooky 👻
-    static let spookyUnique = ["👻","🕷️","🎃","💀","👹","🧟‍♂️"]
-    static let spooky: [String] = (spookyUnique + spookyUnique).shuffled()
-    // Animals 🐶
-    static let animalUnique = ["🐶","🐱","🦁","🐼","🐸","🦊"]
-    static let animals: [String] = (animalUnique + animalUnique).shuffled()
-    
-    // Food 🍎
-    static let foodUnique = ["🍎","🍔","🍕","🍩","🍫","🍦"]
-    static let food: [String] = (foodUnique + foodUnique).shuffled()
-    
-}
-struct CardGameModel<CardContent> {
+struct CardGameModel<CardContent> where CardContent: Equatable {
     
     private(set) var cards: [Card] = []
     
@@ -45,21 +15,53 @@ struct CardGameModel<CardContent> {
         cards = []
         for pairIndex in 0..<max(2, numberOfPairsOfCards) {
             let content = cardContentFactory(pairIndex)
-            cards.append(Card(content: content))
-            cards.append(Card(content: content))
+            cards.append(Card(id: "\(pairIndex + 1)a", content: content))
+            cards.append(Card(id: "\(pairIndex + 1)b", content: content))
+        }
+    }
+    var indexofTheOneAndOnlyFaceUpCard: Int? {
+        get{
+            let faceUpCardIndices = cards.indices.filter { cards[$0].isFaceUp }
+            return faceUpCardIndices.count == 1 ? faceUpCardIndices.first : nil
+        }
+        set{
+            cards.indices.forEach { cards[$0].isFaceUp = (newValue == $0) }
+            
         }
     }
     
-    func choose(_ card: Card) {
+    
+    
+    mutating func choose(_ card: Card) {
+        if let chosenIndex = cards.firstIndex(where: { $0.id == card.id }) {
+            if !cards[chosenIndex].isFaceUp && !cards[chosenIndex].isMatched {
+                if let potentialMatchIndex = indexofTheOneAndOnlyFaceUpCard {
+                    if cards[chosenIndex].content == cards[potentialMatchIndex].content {
+                        //                    score += 1
+                        cards[chosenIndex].isMatched = true
+                        cards[potentialMatchIndex].isMatched = true
+                    }
+                } else {
+
+                    indexofTheOneAndOnlyFaceUpCard = chosenIndex
+                }
+                
+                cards[chosenIndex].isFaceUp = true
+            }
+        }
         
     }
+    
+    
     mutating func shuffle() {
         cards.shuffle()
     }
     var score = 0
     
-    struct Card {
-//        var id: Int
+    struct Card: Equatable, Identifiable {
+        
+        
+        var id: String
         let content: CardContent
         var isFaceUp = false
         var isMatched = false
