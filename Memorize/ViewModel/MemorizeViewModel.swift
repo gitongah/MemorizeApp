@@ -13,7 +13,7 @@ class MemorizeViewModel: ObservableObject {
     private static let emojis = ["👻","🕷️","🎃","💀","👹","🧟‍♂️","😈","🧟‍♀️","🧙🏽","🕸️"]
     
     private static func createMmemoryGame() -> CardGameModel<String>{
-        return CardGameModel(numberOfPairsOfCards: emojis.count ){ index in
+        return CardGameModel(numberOfPairsOfCards: 2/*emojis.count*/ ){ index in
             if emojis.indices.contains(index) {
                 return MemorizeViewModel.emojis[index]
             }else {
@@ -27,6 +27,9 @@ class MemorizeViewModel: ObservableObject {
     
     var cards: [CardGameModel<String>.Card] {
         return game.cards
+    }
+    var color: Color {
+        .orange
     }
      func shuffle() {
         game.shuffle()

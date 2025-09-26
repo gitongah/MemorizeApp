@@ -9,19 +9,20 @@ import SwiftUI
 
 struct CardGameView: View {
     @ObservedObject var viewModel: MemorizeViewModel
-    let aspectRatio: CGFloat = 2/3
-
+    private let aspectRatio: CGFloat = 2/3
+    
     var body: some View {
         VStack {
             Text("Memorize!")
                 .font(.largeTitle)
             Spacer()
             card
+                .foregroundStyle(viewModel.color)
                 .animation(.default, value: viewModel.cards)
             
             Spacer()
             themeBar
-
+            
             
         }
         .padding()
@@ -41,8 +42,7 @@ struct CardGameView: View {
                     
                 }
             }
-            .foregroundStyle(.orange)
-            
+                        
         }
         
     }
@@ -52,7 +52,7 @@ struct CardGameView: View {
                 viewModel.shuffle()
             }
         }
-
+        
     }
     func gridItemWidthThatFits(
         count: Int,

@@ -63,7 +63,7 @@ struct CardGameModel<CardContent> where CardContent: Equatable {
         
         var id: String
         let content: CardContent
-        var isFaceUp = false
+        var isFaceUp = true
         var isMatched = false
     }
     
